@@ -1,5 +1,9 @@
 import "./App.css";
-import BeesJourneyHome from "./BeesJourneyHome";
+import MazeQuest from "./MazeQuest";
+// import BeeGame from "./BeesJourneyHome";
+// import BeesJourneyHome from "./BeesJourneyHome";
+// import BeeGame from "./BeesJourneyHome";
+
 // import BrainGames from "./BrainGames";
 // import MemoryGame from "./MemoryGame";
 //  import NoodleQuest from "./NoodleQuest";
@@ -8,7 +12,8 @@ function App() {
 
   return (
     <>
-     <BeesJourneyHome />
+    <MazeQuest />
+    
     </>
   );
 }

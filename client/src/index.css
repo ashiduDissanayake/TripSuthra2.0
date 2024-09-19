@@ -1,6 +1,27 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer utilities {
+  .text-outline {
+    position: relative;
+    color: rgb(225, 204, 21); /* Text color */
+  }
+  
+  .text-outline::before {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: rgb(0, 0, 0); /* Outline color */
+    z-index: -1;
+    transform: translate(2px, 2px); /* Adjust outline offset */
+    -webkit-background-clip: text;
+    background-clip: text;
+    font-weight: bold;
+  }
+}
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;

@@ -4,7 +4,6 @@ import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import confetti from "canvas-confetti";
 
 // Import images (assuming these imports work in your project structure)
-import Back from "./assets/back.jpg";
 import Darkness from "./assets/darkness.jpg";
 import Double from "./assets/double.jpg";
 import Fairy from "./assets/fairy.jpg";
@@ -15,6 +14,12 @@ import Lightning from "./assets/lightning.jpg";
 import Metal from "./assets/metal.jpg";
 import Psychic from "./assets/psychic.jpg";
 import Water from "./assets/water.jpg";
+import Background from "./assets/background.png";
+import Topic from "./assets/topic.png";
+import PokemonStartButton from "./PokemonStartButton";
+import PokemonGameStatus from "./PokemonGameStatus";
+import PokemonGameBoard from "./PokemonGameBoard";
+import LevelUpAnimation from "./LevelUpAnimation";
 
 const imageMap = {
   darkness: Darkness,
@@ -45,6 +50,18 @@ const MemoryGame = () => {
   const [combo, setCombo] = useState(0);
   const [powerUp, setPowerUp] = useState(null);
   const [isChecking, setIsChecking] = useState(false);
+  const [showLevelUp, setShowLevelUp] = useState(false);
+
+  // Function to handle the level completion logic
+  const checkForLevelCompletion = () => {
+    if (matchedPairs + 1 === (rows * columns) / 2) {
+      setShowLevelUp(true); // Show the level-up animation
+      setTimeout(() => {
+        setShowLevelUp(false); // Hide animation after 3 seconds
+        levelUp(); // Proceed to the next level
+      }, 3000); // Animation duration is 3 seconds
+    }
+  };
 
   const shuffleCards = useCallback(() => {
     let cardSet = cardList
@@ -146,11 +163,8 @@ const MemoryGame = () => {
         spread: 70,
         origin: { y: 0.6 },
       });
-      if (matchedPairs + 1 === (rows * columns) / 2) {
-        setTimeout(() => {
-          alert(`Congratulations! You completed level ${level}!`);
-          levelUp();
-        }, 500);
+      {
+        checkForLevelCompletion();
       }
     } else {
       setErrors((prev) => prev + 1);
@@ -206,82 +220,74 @@ const MemoryGame = () => {
   };
 
   return (
-    <div className="text-center p-4 bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
-      <h1 className="text-4xl font-bold mb-4 text-white">
-        Pokémon Memory Master
-      </h1>
-      <div className="mb-4 flex justify-between items-center">
-        <span className="text-xl font-semibold text-white">Level: {level}</span>
-        <span className="text-xl font-semibold text-white">Score: {score}</span>
-        <span className="text-xl font-semibold text-white">
-          Combo: x{combo}
-        </span>
-        <span className="text-xl font-semibold text-white">
-          Errors: {errors}
-        </span>
-        <CountdownCircleTimer
-          key={timeLeft} // Force re-render when timeLeft changes
-          isPlaying={gameState === "playing"}
-          duration={timeLeft}
-          colors={[["#004777", 0.33], ["#F7B801", 0.33], ["#A30000"]]}
-          size={50}
-          strokeWidth={5}
-          onComplete={() => setGameState("gameOver")}
+    <div className="text-center p-4 ">
+      <img
+        src={Background}
+        alt="Background"
+        className="absolute top-0 left-0 w-full h-full object-cover z-[-1]"
+      />
+      {gameState === "start" && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.5 }} // Start from invisible and smaller size
+          animate={{ opacity: 1, scale: 0.8 }} // Transition to visible and normal size
+          transition={{
+            duration: 1, // Duration of the animation in seconds
+            ease: "easeInOut", // Easing function for smooth transition
+          }}
         >
-          {({ remainingTime }) => remainingTime}
-        </CountdownCircleTimer>
-      </div>
+          <img src={Topic} alt="topic" className="w-full h-auto" />
+        </motion.div>
+      )}
+
+      <PokemonGameStatus
+        gameState={gameState}
+        level={level}
+        score={score}
+        combo={combo}
+        errors={errors}
+        timeLeft={timeLeft}
+        setGameState={setGameState}
+      />
+
       {powerUp && (
-        <div className="mb-4 text-xl font-bold text-yellow-300">
+        <motion.div
+          className="mb-4 p-4 text-xl font-bold bg-gradient-to-r from-yellow-500 to-orange-600 text-white rounded-xl shadow-lg border-4 border-yellow-300"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          whileHover={{ scale: 1.1 }}
+        >
           Power-Up Activated: {powerUp}!
-        </div>
+        </motion.div>
       )}
+
       {gameState === "gameOver" && (
-        <div className="mb-4 text-2xl font-bold text-white">
+        <motion.div
+          className="mb-4 p-4 text-2xl font-bold bg-gradient-to-r from-red-500 to-purple-600 text-white rounded-xl shadow-lg border-4 border-red-300"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          whileHover={{ scale: 1.1 }}
+        >
           Game Over! Final Score: {score}
-        </div>
+        </motion.div>
       )}
-      <motion.div
-        className="grid gap-2 justify-center mb-4"
-        style={{
-          gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
-          maxWidth: "600px",
-          margin: "auto",
-        }}
-      >
-        {board.map((row, rIndex) =>
-          row.map((cardObj, cIndex) => (
-            <motion.div
-              key={`${rIndex}-${cIndex}`}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-            >
-              <motion.img
-                src={
-                  cardObj.isFlipped || cardObj.isMatched
-                    ? imageMap[cardObj.card]
-                    : Back
-                }
-                alt="Card"
-                className="w-24 h-32 cursor-pointer rounded-lg shadow-lg"
-                onClick={() => selectCard(rIndex, cIndex)}
-                animate={{
-                  rotateY: cardObj.isFlipped || cardObj.isMatched ? 180 : 0,
-                }}
-                transition={{ duration: 0.6 }}
-              />
-            </motion.div>
-          ))
-        )}
-      </motion.div>
-      <button
-        className="bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 px-4 rounded-full shadow-lg transform transition hover:scale-105"
-        onClick={startNewGame}
-      >
-        {gameState === "start" || gameState === "gameOver"
-          ? "Start New Game"
-          : "Restart Game"}
-      </button>
+
+      {showLevelUp && (
+        <LevelUpAnimation
+          level={level}
+          onComplete={() => setShowLevelUp(false)}
+        />
+      )}
+
+      <PokemonGameBoard
+        board={board}
+        columns={columns}
+        imageMap={imageMap}
+        selectCard={selectCard}
+      />
+
+      <PokemonStartButton onClick={startNewGame} gameState={gameState} />
     </div>
   );
 };
