@@ -1,5 +1,6 @@
 import "./App.css";
-import MazeQuest from "./MazeQuest";
+// import MazeQuest from "./MazeQuest";
+import WelcomeScreen from "./WelcomeScreen";
 // import BeeGame from "./BeesJourneyHome";
 // import BeesJourneyHome from "./BeesJourneyHome";
 // import BeeGame from "./BeesJourneyHome";
@@ -12,7 +13,7 @@ function App() {
 
   return (
     <>
-    <MazeQuest />
+    <WelcomeScreen />
     
     </>
   );
